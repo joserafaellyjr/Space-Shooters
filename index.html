@@ -42,8 +42,6 @@ const wallGlow=new THREE.MeshBasicMaterial({color:0x17658a,transparent:true,opac
 function makeWall(w,h,x,y,z,rotationY=0,rotationX=0){
  const panel=new THREE.Mesh(new THREE.PlaneGeometry(w,h),wallMat);
  panel.position.set(x,y,z);panel.rotation.set(rotationX,rotationY,0);arena.add(panel);
- const grid=new THREE.GridHelper(Math.max(w,h),Math.max(12,Math.round(Math.max(w,h)/2)),0x35bce9,0x1b648a);
- grid.position.set(x,y,z);grid.rotation.set(rotationX,rotationY,0);arena.add(grid);
  const frame=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(w,h)),new THREE.LineBasicMaterial({color:0x65dcff,transparent:true,opacity:.95}));
  frame.position.set(x,y,z);frame.rotation.set(rotationX,rotationY,0);arena.add(frame);
 }
