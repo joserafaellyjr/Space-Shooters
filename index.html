@@ -48,10 +48,10 @@ function makeWall(w,h,x,y,z,rotationY=0,rotationX=0){
  frame.position.set(x,y,z);frame.rotation.set(rotationX,rotationY,0);arena.add(frame);
 }
 const left=-BOX_W/2,right=BOX_W/2,bottom=-BOX_H/2,top=BOX_H/2,front=BOX_D/2+BOX_CZ,back=-BOX_D/2+BOX_CZ;
-makeWall(BOX_D,BOX_H,0,0,front,0,0);
-makeWall(BOX_D,BOX_H,0,0,back,0,0);
-makeWall(BOX_D,BOX_W,0,top,BOX_CZ,Math.PI/2,0);
-makeWall(BOX_D,BOX_W,0,bottom,BOX_CZ,Math.PI/2,0);
+makeWall(BOX_W,BOX_H,0,0,front,0,0);
+makeWall(BOX_W,BOX_H,0,0,back,0,0);
+makeWall(BOX_W,BOX_D,0,top,BOX_CZ,0,Math.PI/2);
+makeWall(BOX_W,BOX_D,0,bottom,BOX_CZ,0,Math.PI/2);
 makeWall(BOX_D,BOX_H,left,0,BOX_CZ,Math.PI/2,0);
 makeWall(BOX_D,BOX_H,right,0,BOX_CZ,Math.PI/2,0);
 const arenaEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(BOX_W,BOX_H,BOX_D)),new THREE.LineBasicMaterial({color:0x72e4ff,transparent:true,opacity:1}));
