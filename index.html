@@ -66,6 +66,7 @@ document.addEventListener('click',function(e){const b=e.target.closest&&e.target
 <script type="module">
 import * as THREE from 'three';
 const $=id=>document.getElementById(id);
+function setNetStatus(message){const el=$('netStatus');if(el)el.textContent=String(message??'');}
 let netConn=null,netRole='guest',multiplayer=false,remotePlayer=null,remotePlayers=new Map(),remoteShots=[],netSendTimer=0,roomCode='',pilotName='Pilot',remoteName='Rival',localPlayerId=null,roundEndsAt=0,eliminated=false,roundEnded=false;
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x8fc9e8);scene.fog=null;
 const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,1200);camera.position.set(0,5,13);
