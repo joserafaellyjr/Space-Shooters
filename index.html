@@ -194,7 +194,7 @@ function handleNetPacket(p){if(!p)return;
  if(p.type==='round_end'){roundEnded=true;game=false;paused=false;multiplayer=false;roundEndsAt=0;eliminated=false;for(const ship of remotePlayers.values())scene.remove(ship);remotePlayers.clear();remotePlayer=null;$('hostGame').disabled=false;$('hud').style.display='none';$('crosshair').style.display='none';$('hostLobby').style.display='none';$('overlay').style.display='grid';$('intro').textContent='KNOCKOUT ROUND COMPLETE. All pilots are back in the hangar.';$('start').textContent='SOLO FLIGHT';window.setNetStatus('ROUND COMPLETE // RETURNED TO HANGAR');if(netConn){netConn.close();netConn=null;}return;}
 }
 function beginNetworkMatch(){
- const diag=$('flightDiag');if(diag)diag.textContent='MATCH EVENT RECEIVED // INITIALIZING';
+ flightLoopError='';const diag=$('flightDiag');if(diag)diag.textContent='MATCH EVENT RECEIVED // INITIALIZING';
  // Switch the screen FIRST. A game-initialization error must never strand the pilot in the lobby.
  const overlay=$('overlay'),lobby=$('hostLobby'),hud=$('hud'),crosshair=$('crosshair');
  if(lobby)lobby.style.setProperty('display','none','important');
@@ -227,8 +227,8 @@ function beginNetworkMatch(){
   window.setNetStatus('KNOCKOUT // LIVE // '+enemies.length+' RIVAL PILOTS');
   notify('KNOCKOUT ROUND STARTED');
  }catch(error){
-  game=false;
-  if(diag)diag.textContent='MATCH INIT ERROR // '+(error&&error.message?error.message:String(error));
+  game=false;flightLoopError='MATCH INIT ERROR // '+(error&&error.message?error.message:String(error));
+  if(diag)diag.textContent=flightLoopError;
   window.setNetStatus('BATTLE HUD OPENED // GAME INIT ERROR: '+(error&&error.message?error.message:String(error)));
   console.error('STARFALL MATCH INITIALIZATION FAILED',error);
  }
