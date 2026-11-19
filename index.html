@@ -191,7 +191,33 @@ function handleNetPacket(p){if(!p)return;
  if(p.type==='player_eliminated'){const ship=remotePlayers.get(p.playerId);if(ship){ship.visible=false;explodeShip(ship,0xff8b55,1.1);}notify((p.name||'A pilot')+' ELIMINATED');return;}
  if(p.type==='round_end'){roundEnded=true;game=false;paused=false;multiplayer=false;roundEndsAt=0;eliminated=false;for(const ship of remotePlayers.values())scene.remove(ship);remotePlayers.clear();remotePlayer=null;$('hostGame').disabled=false;$('hud').style.display='none';$('crosshair').style.display='none';$('hostLobby').style.display='none';$('overlay').style.display='grid';$('intro').textContent='BATTLE ROYALE COMPLETE. All pilots are back in the hangar.';$('start').textContent='SOLO FLIGHT';window.setNetStatus('ROUND COMPLETE // RETURNED TO HANGAR');if(netConn){netConn.close();netConn=null;}return;}
 }
-function beginNetworkMatch(){if(multiplayer&&game&&!paused){$('hostLobby').style.display='none';$('overlay').style.display='none';$('hud').style.display='block';$('crosshair').style.display='block';window.setNetStatus('BATTLE ROYALE // LIVE MATCH');return;}pilotName=($('pilotName').value.trim().slice(0,16)||'Pilot');tintShip(player,0x42d9ff);updateNameTag(playerNameTag,pilotName,'#6feaff');multiplayer=true;eliminated=false;roundEnded=false;reset();$('hostLobby').style.display='none';$('overlay').style.display='none';$('hud').style.display='block';$('crosshair').style.display='block';window.setNetStatus('BATTLE ROYALE // LIVE MATCH');notify('BATTLE ROYALE STARTED');}
+function beginNetworkMatch(){
+ // Switch the screen FIRST. A game-initialization error must never strand the pilot in the lobby.
+ const overlay=$('overlay'),lobby=$('hostLobby'),hud=$('hud'),crosshair=$('crosshair');
+ if(lobby)lobby.style.setProperty('display','none','important');
+ if(overlay)overlay.style.setProperty('display','none','important');
+ if(hud)hud.style.setProperty('display','block','important');
+ if(crosshair)crosshair.style.setProperty('display','block','important');
+ window.setNetStatus('BATTLE ROYALE // ENTERING ARENA...');
+ if(multiplayer&&game&&!paused){window.setNetStatus('BATTLE ROYALE // LIVE MATCH');return;}
+ try{
+  pilotName=($('pilotName').value.trim().slice(0,16)||'Pilot');
+  multiplayer=true;eliminated=false;roundEnded=false;
+  tintShip(player,0x42d9ff);updateNameTag(playerNameTag,pilotName,'#6feaff');
+  reset();
+  // Re-assert the battle view after initialization in case reset touched UI state.
+  if(lobby)lobby.style.setProperty('display','none','important');
+  if(overlay)overlay.style.setProperty('display','none','important');
+  if(hud)hud.style.setProperty('display','block','important');
+  if(crosshair)crosshair.style.setProperty('display','block','important');
+  window.setNetStatus('BATTLE ROYALE // LIVE MATCH');
+  notify('BATTLE ROYALE STARTED');
+ }catch(error){
+  game=false;
+  window.setNetStatus('BATTLE HUD OPENED // GAME INIT ERROR: '+(error&&error.message?error.message:String(error)));
+  console.error('STARFALL MATCH INITIALIZATION FAILED',error);
+ }
+}
 async function joinBattleRoyale(){if($('hostGame').disabled)return;try{pilotName=($('pilotName').value.trim().slice(0,16)||'Pilot');updateNameTag(playerNameTag,pilotName,'#6feaff');$('hostGame').disabled=true;$('hostLobby').style.display='block';$('lobbyPlayers').textContent='CONNECTING TO MATCHMAKING...';window.setNetStatus('CONTACTING STARFALL MATCHMAKER...');roundEnded=false;let opened=false;let stablePilotId=localStorage.getItem('starfallPilotId');if(!stablePilotId){stablePilotId=crypto.randomUUID();localStorage.setItem('starfallPilotId',stablePilotId);}const socket=new WebSocket('wss://starfall-matchmaker.joserafaellyjr.workers.dev/match?clientId='+encodeURIComponent(stablePilotId));netConn=socket;const connectTimer=setTimeout(()=>{if(!opened&&socket.readyState!==WebSocket.OPEN){window.setNetStatus('CONNECTION TIMEOUT // Matchmaking server did not open the WebSocket. Press PLAY BATTLE ROYALE to retry.');$('lobbyPlayers').textContent='COULD NOT REACH MATCHMAKING SERVER';$('hostGame').disabled=false;try{socket.close();}catch(e){}}},10000);socket.addEventListener('open',()=>{opened=true;clearTimeout(connectTimer);sendNet({type:'join',name:pilotName});window.setNetStatus('CONNECTED // Looking for an open arena...');});socket.addEventListener('message',event=>{try{handleNetPacket(JSON.parse(event.data));}catch(error){console.error('Invalid match packet',error);}});socket.addEventListener('error',()=>{clearTimeout(connectTimer);window.setNetStatus('WEBSOCKET ERROR // Browser could not reach the matchmaking server.');$('lobbyPlayers').textContent='CONNECTION FAILED';$('hostGame').disabled=false;});socket.addEventListener('close',event=>{clearTimeout(connectTimer);if(!roundEnded&&!multiplayer){window.setNetStatus('MATCHMAKING CLOSED // Code '+event.code+(event.reason?' · '+event.reason:'')+'. Press PLAY BATTLE ROYALE to retry.');$('hostGame').disabled=false;}else if(multiplayer&&!roundEnded){window.setNetStatus('SERVER CONNECTION LOST // Code '+event.code);game=false;}});}catch(error){window.setNetStatus('Could not connect: '+error.message);$('hostGame').disabled=false;$('hostLobby').style.display='none';}}
 const startNowButton=$('startNow');if(startNowButton)startNowButton.addEventListener('click',()=>{if(!netConn||netConn.readyState!==WebSocket.OPEN||!roomCode||!localPlayerId){window.setNetStatus('START FAILED // Matchmaking connection is missing. Rejoin matchmaking once.');startNowButton.disabled=false;startNowButton.textContent='REJOIN MATCHMAKING';return;}startNowButton.disabled=true;startNowButton.textContent='REQUESTING START...';window.setNetStatus('START REQUEST SENT OVER YOUR LIVE MATCH CONNECTION...');sendNet({type:'start_now'});window.clearTimeout(window.__starfallStartTimeout);window.__starfallStartTimeout=window.setTimeout(()=>{if(startNowButton.isConnected&&startNowButton.disabled&&!multiplayer){startNowButton.disabled=false;startNowButton.textContent='RETRY START';window.setNetStatus('NO START ACKNOWLEDGEMENT // The match server did not answer. Rejoin matchmaking to get a fresh room.');}},5000);});
 window.__starfallHostPvp=joinBattleRoyale;
