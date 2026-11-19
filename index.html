@@ -54,8 +54,18 @@ const arena=new THREE.Group();scene.add(arena);
 const BOX_W=116,BOX_H=88,BOX_D=152,BOX_CZ=-10;
 const wallMat=new THREE.MeshStandardMaterial({color:0x8f1022,emissive:0x65000c,emissiveIntensity:.7,metalness:.35,roughness:.38,transparent:true,opacity:.58,side:THREE.DoubleSide,depthWrite:false});
 const wallGlow=new THREE.MeshBasicMaterial({color:0xff263f,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false});
+const wallPatternCanvas=document.createElement('canvas');wallPatternCanvas.width=256;wallPatternCanvas.height=256;
+const wallPatternCtx=wallPatternCanvas.getContext('2d');wallPatternCtx.fillStyle='#ffffff';wallPatternCtx.fillRect(0,0,256,256);
+wallPatternCtx.strokeStyle='rgba(92,0,12,.34)';wallPatternCtx.lineWidth=5;
+for(let x=-256;x<512;x+=32){wallPatternCtx.beginPath();wallPatternCtx.moveTo(x,0);wallPatternCtx.lineTo(x+256,256);wallPatternCtx.stroke()}
+wallPatternCtx.strokeStyle='rgba(255,105,120,.22)';wallPatternCtx.lineWidth=2;
+for(let y=24;y<256;y+=64){wallPatternCtx.beginPath();wallPatternCtx.moveTo(0,y);wallPatternCtx.lineTo(256,y);wallPatternCtx.stroke()}
+const wallPatternTexture=new THREE.CanvasTexture(wallPatternCanvas);wallPatternTexture.colorSpace=THREE.SRGBColorSpace;
 function makeWall(w,h,x,y,z,rotationY=0,rotationX=0){
- const panel=new THREE.Mesh(new THREE.PlaneGeometry(w,h),wallMat);
+ const panelGeometry=new THREE.PlaneGeometry(w,h),panelMaterial=wallMat.clone(),pattern=wallPatternTexture.clone();
+ pattern.wrapS=pattern.wrapT=THREE.RepeatWrapping;pattern.repeat.set(w/18,h/18);pattern.needsUpdate=true;
+ panelMaterial.map=pattern;panelMaterial.opacity=.58;panelMaterial.transparent=true;panelMaterial.needsUpdate=true;
+ const panel=new THREE.Mesh(panelGeometry,panelMaterial);
  panel.position.set(x,y,z);panel.rotation.set(rotationX,rotationY,0);arena.add(panel);
  const frame=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.PlaneGeometry(w,h)),new THREE.LineBasicMaterial({color:0xff304b,transparent:true,opacity:1}));
  frame.position.set(x,y,z);frame.rotation.set(rotationX,rotationY,0);arena.add(frame);
