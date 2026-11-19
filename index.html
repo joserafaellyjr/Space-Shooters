@@ -106,7 +106,8 @@ document.addEventListener('mousemove',e=>{if(game&&!paused){steerX=THREE.MathUti
 
 
 
-function tick(dt){if(!game||paused)return;
+function updateEffects(dt){updateEffects(dt);}
+function tick(dt){if(!game||paused){updateEffects(dt);return;}
 const keyX=(keys.KeyD?1:0)-(keys.KeyA?1:0),keyY=(keys.KeyW?1:0)-(keys.KeyS?1:0);const keyboardSteering=keyX!==0||keyY!==0;const inputX=keyboardSteering?keyX:steerX,inputY=keyboardSteering?keyY:steerY;
 const boostPressed=keys.ShiftLeft||keys.ShiftRight;if(boostPressed&&boostCooldown<=0&&boostTime<=0){boostTime=1.6;boostCooldown=5}boostTime=Math.max(0,boostTime-dt);boostCooldown=Math.max(0,boostCooldown-dt);
 const speedRatio=THREE.MathUtils.clamp(playerVelocity.length()/shipSpeed,0,1.35);const turnAccel=shipHandling*(.42+.58*speedRatio);playerAngularVelocity.y+=-inputX*turnAccel*dt;playerAngularVelocity.x+=inputY*turnAccel*.82*dt;playerAngularVelocity.multiplyScalar(Math.exp(-1.45*dt));const yawStep=playerAngularVelocity.y*dt,pitchStep=playerAngularVelocity.x*dt;
