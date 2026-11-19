@@ -45,6 +45,11 @@ h1 span{color:#087fae}
 button{border:1px solid #176c9a;background:linear-gradient(90deg,#168dbb,#2469bd);color:#fff;box-shadow:0 4px 14px #176b9a35}
 button:hover{filter:brightness(1.08)}
 #roundTimer{color:#075d85!important;text-shadow:0 1px 3px #fff!important}
+
+/* TOUCH-FRIENDLY HANGAR SCROLLING */
+#overlay{overflow-y:auto;overflow-x:hidden;overscroll-behavior-y:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;padding:14px 0}
+.card{max-height:calc(100dvh - 28px);overflow-y:auto;overflow-x:hidden;overscroll-behavior:contain;-webkit-overflow-scrolling:touch;touch-action:pan-y;margin:0 auto}
+@media(max-width:600px){.card{width:calc(100% - 20px);padding:24px 18px;max-height:calc(100dvh - 20px)}#overlay{padding:10px 0}}
 </style>
 <script type="importmap">{"imports":{"three":"https://cdn.jsdelivr.net/npm/three@0.160.0/build/three.module.js"}}</script>
 </head>
