@@ -198,19 +198,27 @@ function beginNetworkMatch(){
  if(overlay)overlay.style.setProperty('display','none','important');
  if(hud)hud.style.setProperty('display','block','important');
  if(crosshair)crosshair.style.setProperty('display','block','important');
- window.setNetStatus('BATTLE ROYALE // ENTERING ARENA...');
- if(multiplayer&&game&&!paused){window.setNetStatus('BATTLE ROYALE // LIVE MATCH');return;}
+ window.setNetStatus('BATTLE ROYALE // INITIALIZING FLIGHT...');
  try{
   pilotName=($('pilotName').value.trim().slice(0,16)||'Pilot');
-  multiplayer=true;eliminated=false;roundEnded=false;
+  multiplayer=true;eliminated=false;roundEnded=false;paused=false;
   tintShip(player,0x42d9ff);updateNameTag(playerNameTag,pilotName,'#6feaff');
+  // Always perform a fresh battle reset. A duplicate network start event must
+  // never leave a previously frozen/empty client in the arena.
   reset();
+  game=true;paused=false;player.visible=true;
+  if(enemies.length===0){for(let i=0;i<14;i++)spawnEnemy();}
+  if(playerVelocity.length()<1){flightForward.set(0,0,-1).applyQuaternion(player.quaternion).normalize();playerVelocity.copy(flightForward).multiplyScalar(shipSpeed*.65);}
+  cameraOffset.set(0,3,13).applyQuaternion(player.quaternion);
+  camera.position.copy(player.position).add(cameraOffset);
+  cameraTarget.copy(player.position).addScaledVector(flightForward.set(0,0,-1).applyQuaternion(player.quaternion).normalize(),15);
+  camera.up.set(0,1,0).applyQuaternion(player.quaternion);camera.lookAt(cameraTarget);
   // Re-assert the battle view after initialization in case reset touched UI state.
   if(lobby)lobby.style.setProperty('display','none','important');
   if(overlay)overlay.style.setProperty('display','none','important');
   if(hud)hud.style.setProperty('display','block','important');
   if(crosshair)crosshair.style.setProperty('display','block','important');
-  window.setNetStatus('BATTLE ROYALE // LIVE MATCH');
+  window.setNetStatus('BATTLE ROYALE // LIVE // '+enemies.length+' NPC PILOTS');
   notify('BATTLE ROYALE STARTED');
  }catch(error){
   game=false;
