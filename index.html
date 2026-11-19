@@ -138,7 +138,7 @@ document.addEventListener('mousemove',e=>{if(game&&!paused){steerX=THREE.MathUti
 
 
 
-function updateEffects(dt){updateEffects(dt);}
+function updateEffects(dt){}
 function tick(dt){if(!game||paused){updateEffects(dt);return;}
 const keyX=(keys.KeyD?1:0)-(keys.KeyA?1:0),keyY=(keys.KeyW?1:0)-(keys.KeyS?1:0);const keyboardSteering=keyX!==0||keyY!==0;const inputX=keyboardSteering?keyX:steerX,inputY=keyboardSteering?keyY:steerY;
 const boostPressed=keys.ShiftLeft||keys.ShiftRight;if(boostPressed&&boostCooldown<=0&&boostTime<=0){boostTime=1.6;boostCooldown=5}boostTime=Math.max(0,boostTime-dt);boostCooldown=Math.max(0,boostCooldown-dt);
@@ -173,7 +173,8 @@ updateHUD()
 }
 function setupRemote(name='Rival',id='remote'){if(remotePlayers.has(id))return remotePlayers.get(id);const color=remotePlayers.size%2?0xffa34d:0x9b83ff;const ship=shipModel(color);ship.scale.setScalar(1.08);ship.add(makeNameTag(name,'#c7dfff'));scene.add(ship);remotePlayers.set(id,ship);if(!remotePlayer)remotePlayer=ship;return ship}
 function renderLobby(){$('hostLobby').style.display='block';$('lobbyCode').textContent='AUTOMATIC MATCHMAKING';const count=remotePlayers.size+1;$('lobbyPlayers').textContent='◆ '+pilotName+'  //  '+count+' PILOT'+(count===1?'':'S')+' CONNECTED';}
-function syncAssignedName(players){const me=(players||[]).find(x=>x.id===localPlayerId);if(me&&me.name&&me.name!==pilotName){pilotName=me.name;$('pilotName').value=pilotName;updateNameTag(playerNameTag,pilotName,'#6feaff');}}\nfunction handleNetPacket(p){if(!p)return;
+function syncAssignedName(players){const me=(players||[]).find(x=>x.id===localPlayerId);if(me&&me.name&&me.name!==pilotName){pilotName=me.name;$('pilotName').value=pilotName;updateNameTag(playerNameTag,pilotName,'#6feaff');}}
+function handleNetPacket(p){if(!p)return;
  if(p.type==='welcome'){localPlayerId=p.playerId;syncAssignedName(p.players);roomCode=p.roomId||'';if(p.endsAt)roundEndsAt=p.endsAt;setNetStatus(p.phase==='active'?'MATCH FOUND // Joining battle...':'SEARCHING FOR PILOTS // Waiting for another pilot.');renderLobby();if(p.phase==='active')beginNetworkMatch();return;}
  if(p.type==='roster'){syncAssignedName(p.players);const pilots=(p.players||[]).map(x=>x.name||'Pilot');$('lobbyPlayers').textContent='◆ '+pilotName+'  //  '+(p.connected||pilots.length||1)+' PILOTS CONNECTED'+(pilots.length?' · '+pilots.join(', '):'');return;}
  if(p.type==='match_started'){roundEndsAt=p.endsAt||Date.now()+600000;setNetStatus('BATTLE ROYALE STARTED // 10:00');beginNetworkMatch();return;}
