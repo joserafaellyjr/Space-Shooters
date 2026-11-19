@@ -193,6 +193,7 @@ function handleNetPacket(p){if(!p)return;
  if(p.type==='round_end'){roundEnded=true;game=false;paused=false;multiplayer=false;roundEndsAt=0;eliminated=false;for(const ship of remotePlayers.values())scene.remove(ship);remotePlayers.clear();remotePlayer=null;$('hostGame').disabled=false;$('hud').style.display='none';$('crosshair').style.display='none';$('hostLobby').style.display='none';$('overlay').style.display='grid';$('intro').textContent='BATTLE ROYALE COMPLETE. All pilots are back in the hangar.';$('start').textContent='SOLO FLIGHT';window.setNetStatus('ROUND COMPLETE // RETURNED TO HANGAR');if(netConn){netConn.close();netConn=null;}return;}
 }
 function beginNetworkMatch(){
+ const diag=$('flightDiag');if(diag)diag.textContent='MATCH EVENT RECEIVED // INITIALIZING';
  // Switch the screen FIRST. A game-initialization error must never strand the pilot in the lobby.
  const overlay=$('overlay'),lobby=$('hostLobby'),hud=$('hud'),crosshair=$('crosshair');
  if(lobby)lobby.style.setProperty('display','none','important');
@@ -206,7 +207,9 @@ function beginNetworkMatch(){
   tintShip(player,0x42d9ff);updateNameTag(playerNameTag,pilotName,'#6feaff');
   // Always perform a fresh battle reset. A duplicate network start event must
   // never leave a previously frozen/empty client in the arena.
+  if(diag)diag.textContent='RESET IN PROGRESS';
   reset();
+  if(diag)diag.textContent='RESET COMPLETE // NPC '+enemies.length;
   game=true;paused=false;player.visible=true;
   if(enemies.length===0){for(let i=0;i<14;i++)spawnEnemy();}
   if(playerVelocity.length()<1){flightForward.set(0,0,-1).applyQuaternion(player.quaternion).normalize();playerVelocity.copy(flightForward).multiplyScalar(shipSpeed*.65);}
@@ -219,10 +222,12 @@ function beginNetworkMatch(){
   if(overlay)overlay.style.setProperty('display','none','important');
   if(hud)hud.style.setProperty('display','block','important');
   if(crosshair)crosshair.style.setProperty('display','block','important');
+  if(diag)diag.textContent='MATCH INITIALIZED // NPC '+enemies.length+' // GAME '+game+' // SPEED '+playerVelocity.length().toFixed(1);
   window.setNetStatus('BATTLE ROYALE // LIVE // '+enemies.length+' NPC PILOTS');
   notify('BATTLE ROYALE STARTED');
  }catch(error){
   game=false;
+  if(diag)diag.textContent='MATCH INIT ERROR // '+(error&&error.message?error.message:String(error));
   window.setNetStatus('BATTLE HUD OPENED // GAME INIT ERROR: '+(error&&error.message?error.message:String(error)));
   console.error('STARFALL MATCH INITIALIZATION FAILED',error);
  }
@@ -232,7 +237,7 @@ const startNowButton=$('startNow');if(startNowButton)startNowButton.addEventList
 window.__starfallHostPvp=joinBattleRoyale;
 
 function updateRoundTimer(){const el=$('roundTimer');if(!el)return;if(!multiplayer||!roundEndsAt){el.textContent='10:00';return}const left=Math.max(0,Math.ceil((roundEndsAt-Date.now())/1000));el.textContent=String(Math.floor(left/60)).padStart(2,'0')+':'+String(left%60).padStart(2,'0');}
-let diagClock=0;function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);try{tick(dt);updateRoundTimer();}catch(error){game=false;const d=$('flightDiag');if(d)d.textContent='FLIGHT LOOP ERROR // '+(error&&error.message?error.message:String(error));console.error('STARFALL FLIGHT LOOP FAILED',error);}diagClock+=dt;if(diagClock>=.25){diagClock=0;const d=$('flightDiag');if(d&&game){const p=player.position;d.textContent='FLIGHT '+(paused?'PAUSED':'RUNNING')+' // NPC '+enemies.length+' // POS '+p.x.toFixed(0)+','+p.y.toFixed(0)+','+p.z.toFixed(0)+' // SPEED '+playerVelocity.length().toFixed(1);}}renderer.render(scene,camera)}animate();
+let diagClock=0;function animate(){requestAnimationFrame(animate);const dt=Math.min(clock.getDelta(),.04);try{tick(dt);updateRoundTimer();}catch(error){game=false;const d=$('flightDiag');if(d)d.textContent='FLIGHT LOOP ERROR // '+(error&&error.message?error.message:String(error));console.error('STARFALL FLIGHT LOOP FAILED',error);}diagClock+=dt;if(diagClock>=.25){diagClock=0;const d=$('flightDiag');if(d){const p=player.position;d.textContent='GAME '+(game?'RUNNING':'STOPPED')+' // NPC '+enemies.length+' // POS '+p.x.toFixed(0)+','+p.y.toFixed(0)+','+p.z.toFixed(0)+' // SPEED '+playerVelocity.length().toFixed(1);}}renderer.render(scene,camera)}animate();
 addEventListener('resize',()=>{camera.aspect=innerWidth/innerHeight;camera.updateProjectionMatrix();renderer.setSize(innerWidth,innerHeight)});
 </script>
 </body></html>
