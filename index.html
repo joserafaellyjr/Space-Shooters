@@ -115,7 +115,7 @@ function shipModel(color=0x42d9ff,design='interceptor'){
  const g=new THREE.Group(),isHeavy=design==='bulwark',isStealth=design==='wraith';
  const accent=isHeavy?0xffa34d:isStealth?0xc58aff:0x35cfff;
  const hullMat=new THREE.MeshStandardMaterial({color,metalness:.78,roughness:.32});
- const armorMat=new THREE.MeshStandardMaterial({color:isHeavy?0x303946:isStealth?0x292638:0x18364d,metalness:.84,roughness:.38});
+ const armorMat=new THREE.MeshStandardMaterial({color:isHeavy?0x303946:isStealth?0x292638:0x18364d,metalness:.84,roughness:.38,side:THREE.DoubleSide});
  const edgeMat=new THREE.MeshStandardMaterial({color:isHeavy?0x59616b:isStealth?0x514568:0x47718a,metalness:.88,roughness:.27});
  const darkMat=new THREE.MeshStandardMaterial({color:0x101923,metalness:.72,roughness:.46});
  const accentMat=new THREE.MeshStandardMaterial({color:accent,metalness:.62,roughness:.3,emissive:accent,emissiveIntensity:.16});
