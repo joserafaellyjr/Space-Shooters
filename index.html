@@ -78,7 +78,7 @@ let netConn=null,netRole='guest',multiplayer=false,soloBattleRoyale=false,remote
 const scene=new THREE.Scene();scene.background=new THREE.Color(0x020611);scene.fog=null;
 const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,1200);camera.position.set(0,5,13);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.45;document.body.appendChild(renderer.domElement);
-scene.add(new THREE.HemisphereLight(0x9bcfff,0x101a35,1.45));const keyLight=new THREE.PointLight(0x9bdcff,85,190);keyLight.position.set(4,8,8);scene.add(keyLight);
+scene.add(new THREE.HemisphereLight(0xbfe8ff,0x263b58,2.2));scene.add(new THREE.AmbientLight(0x8ebfe8,1.05));const keyLight=new THREE.DirectionalLight(0xd9f2ff,2.1);keyLight.position.set(35,55,30);scene.add(keyLight);const fillLight=new THREE.DirectionalLight(0x579bd8,1.15);fillLight.position.set(-45,-20,-55);scene.add(fillLight);
 const starGeo=new THREE.BufferGeometry(),starCount=1800,starPos=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){starPos[i*3]=(Math.random()-.5)*500;starPos[i*3+1]=(Math.random()-.5)*300;starPos[i*3+2]=-Math.random()*650}starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xb9eaff,size:.75,transparent:true,opacity:.85})));
 const arena=new THREE.Group();scene.add(arena);
 const BOX_W=264,BOX_H=198,BOX_D=342,BOX_CZ=-15;
@@ -86,10 +86,10 @@ const wallMat=new THREE.MeshStandardMaterial({color:0x8edcff,emissive:0x2b9fca,e
 const wallGlow=new THREE.MeshBasicMaterial({color:0x8beaff,transparent:true,opacity:.07,side:THREE.DoubleSide,depthWrite:false});
 const wallPatternCanvas=document.createElement('canvas');wallPatternCanvas.width=256;wallPatternCanvas.height=256;
 const wallPatternCtx=wallPatternCanvas.getContext('2d');wallPatternCtx.clearRect(0,0,256,256);
-wallPatternCtx.strokeStyle='rgba(255,12,42,1)';wallPatternCtx.lineWidth=4;wallPatternCtx.shadowColor='#ff001e';wallPatternCtx.shadowBlur=20;
+wallPatternCtx.strokeStyle='rgba(75,205,255,.48)';wallPatternCtx.lineWidth=2;wallPatternCtx.shadowColor='#38bfff';wallPatternCtx.shadowBlur=5;
 for(let x=0;x<=256;x+=32){wallPatternCtx.beginPath();wallPatternCtx.moveTo(x,0);wallPatternCtx.lineTo(x,256);wallPatternCtx.stroke()}
 for(let y=0;y<=256;y+=32){wallPatternCtx.beginPath();wallPatternCtx.moveTo(0,y);wallPatternCtx.lineTo(256,y);wallPatternCtx.stroke()}
-wallPatternCtx.shadowBlur=5;wallPatternCtx.strokeStyle='rgba(255,115,130,.95)';wallPatternCtx.lineWidth=1.5;
+wallPatternCtx.shadowBlur=2;wallPatternCtx.strokeStyle='rgba(155,230,255,.32)';wallPatternCtx.lineWidth=1;
 for(let x=16;x<256;x+=32){wallPatternCtx.beginPath();wallPatternCtx.moveTo(x,0);wallPatternCtx.lineTo(x,256);wallPatternCtx.stroke()}
 for(let y=16;y<256;y+=32){wallPatternCtx.beginPath();wallPatternCtx.moveTo(0,y);wallPatternCtx.lineTo(256,y);wallPatternCtx.stroke()}
 const wallPatternTexture=new THREE.CanvasTexture(wallPatternCanvas);wallPatternTexture.colorSpace=THREE.SRGBColorSpace;
@@ -98,9 +98,9 @@ function makeWall(w,h,x,y,z,rotationY=0,rotationX=0){
  pattern.wrapS=pattern.wrapT=THREE.RepeatWrapping;pattern.repeat.set(w/18,h/18);pattern.needsUpdate=true;
  const panel=new THREE.Mesh(panelGeometry,wallMat.clone());
  panel.position.set(x,y,z);panel.rotation.set(rotationX,rotationY,0);arena.add(panel);
- const laserGrid=new THREE.Mesh(panelGeometry,new THREE.MeshBasicMaterial({map:pattern,transparent:true,opacity:.95,side:THREE.DoubleSide,depthWrite:false,blending:THREE.AdditiveBlending}));
+ const laserGrid=new THREE.Mesh(panelGeometry,new THREE.MeshBasicMaterial({map:pattern,transparent:true,opacity:.38,side:THREE.DoubleSide,depthWrite:false,blending:THREE.NormalBlending}));
  laserGrid.position.copy(panel.position);laserGrid.rotation.copy(panel.rotation);laserGrid.renderOrder=2;arena.add(laserGrid);
- const frame=new THREE.LineSegments(new THREE.EdgesGeometry(panelGeometry),new THREE.LineBasicMaterial({color:0xff1838,transparent:true,opacity:1}));
+ const frame=new THREE.LineSegments(new THREE.EdgesGeometry(panelGeometry),new THREE.LineBasicMaterial({color:0x43bfff,transparent:true,opacity:.62}));
  frame.position.set(x,y,z);frame.rotation.set(rotationX,rotationY,0);arena.add(frame);
 }
 const left=-BOX_W/2,right=BOX_W/2,bottom=-BOX_H/2,top=BOX_H/2,front=BOX_D/2+BOX_CZ,back=-BOX_D/2+BOX_CZ;
@@ -110,7 +110,7 @@ makeWall(BOX_W,BOX_D,0,top,BOX_CZ,0,Math.PI/2);
 makeWall(BOX_W,BOX_D,0,bottom,BOX_CZ,0,Math.PI/2);
 makeWall(BOX_D,BOX_H,left,0,BOX_CZ,Math.PI/2,0);
 makeWall(BOX_D,BOX_H,right,0,BOX_CZ,Math.PI/2,0);
-const arenaEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(BOX_W,BOX_H,BOX_D)),new THREE.LineBasicMaterial({color:0xff263f,transparent:true,opacity:1}));
+const arenaEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(BOX_W,BOX_H,BOX_D)),new THREE.LineBasicMaterial({color:0x55caff,transparent:true,opacity:.72}));
 arenaEdges.position.set(0,0,BOX_CZ);arena.add(arenaEdges);
 const wallBeacons=[];for(const x of [-126,126])for(const y of [-94.5,94.5]){const beacon=new THREE.PointLight(0x66dcff,18,60);beacon.position.set(x,y,-10);arena.add(beacon);wallBeacons.push(beacon)}
 function makeNameTag(label,color='#bdf6ff'){const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='rgba(3,12,28,.78)';ctx.strokeStyle=color;ctx.lineWidth=5;ctx.beginPath();ctx.roundRect(8,8,496,112,20);ctx.fill();ctx.stroke();ctx.font='bold 48px Orbitron,Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=12;ctx.fillText(String(label||'Pilot').slice(0,16),256,65);const tex=new THREE.CanvasTexture(canvas);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));sprite.scale.set(6.2,1.55,1);sprite.position.set(0,3.1,0);sprite.renderOrder=10;return sprite}
