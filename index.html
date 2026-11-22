@@ -75,14 +75,14 @@ const $=id=>document.getElementById(id);
 window.setNetStatus=function(message){const el=document.getElementById('netStatus');if(el)el.textContent=String(message??'');};
 const setNetStatus=window.setNetStatus;
 let netConn=null,netRole='guest',multiplayer=false,soloBattleRoyale=false,remotePlayer=null,remotePlayers=new Map(),remoteShots=[],netSendTimer=0,roomCode='',pilotName='Pilot',remoteName='Rival',localPlayerId=null,roundEndsAt=0,eliminated=false,roundEnded=false;
-const scene=new THREE.Scene();scene.background=new THREE.Color(0x020611);scene.fog=null;
+const scene=new THREE.Scene();scene.background=new THREE.Color(0x173b59);scene.fog=null;
 const camera=new THREE.PerspectiveCamera(68,innerWidth/innerHeight,.1,1200);camera.position.set(0,5,13);
 const renderer=new THREE.WebGLRenderer({antialias:true});renderer.setPixelRatio(Math.min(devicePixelRatio,2));renderer.setSize(innerWidth,innerHeight);renderer.outputColorSpace=THREE.SRGBColorSpace;renderer.toneMapping=THREE.ACESFilmicToneMapping;renderer.toneMappingExposure=1.8;document.body.appendChild(renderer.domElement);
 scene.add(new THREE.HemisphereLight(0xe4f6ff,0x526b86,3.1));scene.add(new THREE.AmbientLight(0xc4e5ff,2.0));const keyLight=new THREE.DirectionalLight(0xffffff,3.2);keyLight.position.set(35,55,30);scene.add(keyLight);const fillLight=new THREE.DirectionalLight(0x8fcaff,2.1);fillLight.position.set(-45,-20,-55);scene.add(fillLight);
 const starGeo=new THREE.BufferGeometry(),starCount=1800,starPos=new Float32Array(starCount*3);for(let i=0;i<starCount;i++){starPos[i*3]=(Math.random()-.5)*500;starPos[i*3+1]=(Math.random()-.5)*300;starPos[i*3+2]=-Math.random()*650}starGeo.setAttribute('position',new THREE.BufferAttribute(starPos,3));scene.add(new THREE.Points(starGeo,new THREE.PointsMaterial({color:0xe5f7ff,size:1.15,transparent:true,opacity:1})));
 const arena=new THREE.Group();scene.add(arena);
 const BOX_W=264,BOX_H=198,BOX_D=342,BOX_CZ=-15;
-const wallMat=new THREE.MeshStandardMaterial({color:0xbceaff,emissive:0x4dbbe8,emissiveIntensity:.65,metalness:.02,roughness:.5,transparent:true,opacity:.22,side:THREE.DoubleSide,depthWrite:false});
+const wallMat=new THREE.MeshBasicMaterial({color:0x56b5df,transparent:true,opacity:.28,side:THREE.DoubleSide,depthWrite:false});
 const wallGlow=new THREE.MeshBasicMaterial({color:0x8beaff,transparent:true,opacity:.07,side:THREE.DoubleSide,depthWrite:false});
 const wallPatternCanvas=document.createElement('canvas');wallPatternCanvas.width=256;wallPatternCanvas.height=256;
 const wallPatternCtx=wallPatternCanvas.getContext('2d');wallPatternCtx.clearRect(0,0,256,256);
@@ -99,7 +99,7 @@ function makeWall(w,h,x,y,z,rotationY=0,rotationX=0){
  const panel=new THREE.Mesh(panelGeometry,wallMat.clone());
  panel.position.set(x,y,z);panel.rotation.set(rotationX,rotationY,0);arena.add(panel);
  pattern.dispose();
- const frame=new THREE.LineSegments(new THREE.EdgesGeometry(panelGeometry),new THREE.LineBasicMaterial({color:0x79dcff,transparent:true,opacity:.9}));
+ const frame=new THREE.LineSegments(new THREE.EdgesGeometry(panelGeometry),new THREE.LineBasicMaterial({color:0xb5f1ff,transparent:true,opacity:1}));
  frame.position.set(x,y,z);frame.rotation.set(rotationX,rotationY,0);arena.add(frame);
 }
 const left=-BOX_W/2,right=BOX_W/2,bottom=-BOX_H/2,top=BOX_H/2,front=BOX_D/2+BOX_CZ,back=-BOX_D/2+BOX_CZ;
@@ -109,7 +109,7 @@ makeWall(BOX_W,BOX_D,0,top,BOX_CZ,0,Math.PI/2);
 makeWall(BOX_W,BOX_D,0,bottom,BOX_CZ,0,Math.PI/2);
 makeWall(BOX_D,BOX_H,left,0,BOX_CZ,Math.PI/2,0);
 makeWall(BOX_D,BOX_H,right,0,BOX_CZ,Math.PI/2,0);
-const arenaEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(BOX_W,BOX_H,BOX_D)),new THREE.LineBasicMaterial({color:0x8be5ff,transparent:true,opacity:.95}));
+const arenaEdges=new THREE.LineSegments(new THREE.EdgesGeometry(new THREE.BoxGeometry(BOX_W,BOX_H,BOX_D)),new THREE.LineBasicMaterial({color:0xb5f1ff,transparent:true,opacity:1}));
 arenaEdges.position.set(0,0,BOX_CZ);arena.add(arenaEdges);
 const wallBeacons=[];for(const x of [-126,126])for(const y of [-94.5,94.5]){const beacon=new THREE.PointLight(0x8deaff,32,85);beacon.position.set(x,y,-10);arena.add(beacon);wallBeacons.push(beacon)}
 function makeNameTag(label,color='#bdf6ff'){const canvas=document.createElement('canvas');canvas.width=512;canvas.height=128;const ctx=canvas.getContext('2d');ctx.fillStyle='rgba(3,12,28,.78)';ctx.strokeStyle=color;ctx.lineWidth=5;ctx.beginPath();ctx.roundRect(8,8,496,112,20);ctx.fill();ctx.stroke();ctx.font='bold 48px Orbitron,Arial';ctx.textAlign='center';ctx.textBaseline='middle';ctx.fillStyle=color;ctx.shadowColor=color;ctx.shadowBlur=12;ctx.fillText(String(label||'Pilot').slice(0,16),256,65);const tex=new THREE.CanvasTexture(canvas);const sprite=new THREE.Sprite(new THREE.SpriteMaterial({map:tex,transparent:true,depthTest:false}));sprite.scale.set(6.2,1.55,1);sprite.position.set(0,3.1,0);sprite.renderOrder=10;return sprite}
