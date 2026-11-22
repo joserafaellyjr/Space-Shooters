@@ -321,7 +321,7 @@ function beginNetworkMatch(){
  window.setNetStatus('KNOCKOUT // INITIALIZING FLIGHT...');
  try{
   pilotName=($('pilotName').value.trim().slice(0,16)||'Pilot');
-  const hasLiveRival=Array.from(remotePlayers.values()).some(ship=>ship.visible);multiplayer=hasLiveRival;soloBattleRoyale=!hasLiveRival;eliminated=false;roundEnded=false;paused=false;
+  multiplayer=true;soloBattleRoyale=false;eliminated=false;roundEnded=false;paused=false;
   tintShip(player,0x42d9ff);updateNameTag(playerNameTag,pilotName,'#6feaff');
   // Always perform a fresh battle reset. A duplicate network start event must
   // never leave a previously frozen/empty client in the arena.
