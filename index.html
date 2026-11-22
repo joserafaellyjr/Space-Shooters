@@ -182,7 +182,7 @@ for(const e of enemies){e.fire-=dt;e.targetRefresh=(e.targetRefresh||0)-dt;if(e.
 for(let i=shots.length-1;i>=0;i--){const s=shots[i];if(s.homing){let target=null,best=Infinity;for(const e of enemies){if(!e.mesh.visible)continue;const d=s.mesh.position.distanceToSquared(e.mesh.position);if(d<best){best=d;target=e.mesh;}}if(target){const desired=target.position.clone().sub(s.mesh.position).normalize();const current=s.vel.clone().normalize();current.lerp(desired,Math.min(1,(s.turnRate||2.35)*dt)).normalize();s.vel.copy(current.multiplyScalar(58));s.mesh.quaternion.setFromUnitVectors(new THREE.Vector3(0,1,0),current);}}s.mesh.position.addScaledVector(s.vel,dt);s.life-=dt;let hit=false;
 if(multiplayer){for(const [targetId,ship] of remotePlayers){if(ship.visible&&s.mesh.position.distanceTo(ship.position)<2.4){sendNet({type:'hit',targetId,damage:s.damage||1});impactBurst(s.mesh.position,0xff8a65);hit=true;break}}}
 if(!hit){for(let j=enemies.length-1;j>=0;j--){const e=enemies[j];if(s.mesh.position.distanceTo(e.mesh.position)<(e.isBoss?5.2:2.1)){damageNpc(e,s.damage||1,player);impactBurst(s.mesh.position,0xff3152);hit=true;break}}}
-if(hit||s.life<=0||Math.abs(s.mesh.position.x)>60||Math.abs(s.mesh.position.y)>46||s.mesh.position.z< -88||s.mesh.position.z>68){scene.remove(s.mesh);shots.splice(i,1)}}
+if(hit||s.life<=0||Math.abs(s.mesh.position.x)>90||Math.abs(s.mesh.position.y)>68||s.mesh.position.z< -126||s.mesh.position.z>106){scene.remove(s.mesh);shots.splice(i,1)}}
 for(let i=remoteShots.length-1;i>=0;i--){const s=remoteShots[i];s.mesh.position.addScaledVector(s.vel,dt);s.life-=dt;if(s.life<=0){scene.remove(s.mesh);remoteShots.splice(i,1)}}
 for(let i=pickups.length-1;i>=0;i--){const p=pickups[i];p.life-=dt;p.spin+=dt*2.5;p.mesh.rotation.y=p.spin;p.mesh.rotation.x=p.spin*.7;p.mesh.position.y+=Math.sin(p.spin*2)*dt*.8;if(p.mesh.position.distanceTo(player.position)<2.2){if(p.type==='rapid')rapidTimer=8;notify('RAPID FIRE // 8 SECONDS');p.life=0}if(p.life<=0){scene.remove(p.mesh);pickups.splice(i,1)}}
 rapidTimer=Math.max(0,rapidTimer-dt);
@@ -214,7 +214,8 @@ function handleNetPacket(p){if(!p)return;
    if (p.hp <= 0) ship.visible = false;
   }
   if (p.playerId === localPlayerId) {
-   hp = Math.max(0, Math.min(hp, p.hp));
+   hp = Math.max(0, Math.min(maxHull, Number(p.hp)));
+   if (Number.isFinite(Number(p.shield))) shield = Math.max(0, Math.min(maxShield, Number(p.shield)));
    breakShipParts(player, hp / maxHull);
    updateHUD();
   }
