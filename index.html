@@ -123,13 +123,13 @@ function shipModel(color=0x42d9ff,design='interceptor'){
  const glassMat=new THREE.MeshPhysicalMaterial({color:0x142d43,metalness:.48,roughness:.09,transparent:true,opacity:.9,clearcoat:1,clearcoatRoughness:.06,emissive:isStealth?0x160c28:0x082333,emissiveIntensity:.22});
  const addBox=(name,w,h,d,x,y,z,material,bevel=0)=>{const mesh=new THREE.Mesh(new THREE.BoxGeometry(w,h,d),material);mesh.name=name;mesh.position.set(x,y,z);g.add(mesh);return mesh;};
  const addPanel=(name,w,h,d,x,y,z,material=armorMat)=>addBox(name,w,h,d,x,y,z,material);
- const bodyLen=isHeavy?4.6:4.0,bodyRadius=isHeavy?1.05:isStealth?.64:.78;
+ const bodyLen=isHeavy?4.6:4.0,bodyRadius=isHeavy?1.05:isStealth ? .64:.78;
  const body=new THREE.Mesh(new THREE.ConeGeometry(bodyRadius,bodyLen,isHeavy?10:8),hullMat);body.name='hull';body.rotation.x=-Math.PI/2;body.position.z=-.22;g.add(body);
  const dorsal=new THREE.Mesh(new THREE.BoxGeometry(isHeavy?1.15:.72,.22,isHeavy?2.45:2.05),armorMat);dorsal.name='dorsal-armor';dorsal.position.set(0,.43,-.05);g.add(dorsal);
- const keel=new THREE.Mesh(new THREE.BoxGeometry(isHeavy?.72:.38,.2,2.7),darkMat);keel.name='ventral-keel';keel.position.set(0,-.38,.35);g.add(keel);
+ const keel=new THREE.Mesh(new THREE.BoxGeometry(isHeavy ? .72:.38,.2,2.7),darkMat);keel.name='ventral-keel';keel.position.set(0,-.38,.35);g.add(keel);
  // Cockpit with a raised armored rim and reflective canopy.
- const cockpit=new THREE.Mesh(new THREE.SphereGeometry(isHeavy?.55:.43,18,14),glassMat);cockpit.name='cockpit';cockpit.scale.set(isHeavy?1.18:.86,.55,isHeavy?1.55:1.48);cockpit.position.set(0,.53,-.42);g.add(cockpit);
- const canopyFrame=new THREE.Mesh(new THREE.TorusGeometry(isHeavy?.47:.37,.065,7,20),edgeMat);canopyFrame.name='cockpit-frame';canopyFrame.scale.set(1,.7,1.35);canopyFrame.rotation.x=Math.PI/2;canopyFrame.position.set(0,.56,-.42);g.add(canopyFrame);
+ const cockpit=new THREE.Mesh(new THREE.SphereGeometry(isHeavy ? .55:.43,18,14),glassMat);cockpit.name='cockpit';cockpit.scale.set(isHeavy?1.18:.86,.55,isHeavy?1.55:1.48);cockpit.position.set(0,.53,-.42);g.add(cockpit);
+ const canopyFrame=new THREE.Mesh(new THREE.TorusGeometry(isHeavy ? .47:.37,.065,7,20),edgeMat);canopyFrame.name='cockpit-frame';canopyFrame.scale.set(1,.7,1.35);canopyFrame.rotation.x=Math.PI/2;canopyFrame.position.set(0,.56,-.42);g.add(canopyFrame);
  addBox('canopy-spine',.075,.045,1.12,0,.91,-.42,edgeMat);
  // Wing geometry is intentionally different for each airframe.
  for(const side of [-1,1]){
@@ -139,21 +139,21 @@ function shipModel(color=0x42d9ff,design='interceptor'){
   else {const shape=new THREE.Shape();shape.moveTo(0,0);shape.lineTo(2.35,.12);shape.lineTo(1.78,.72);shape.lineTo(.52,1.48);shape.lineTo(.12,.92);shape.closePath();const geo=new THREE.ShapeGeometry(shape);geo.rotateX(-Math.PI/2);geo.scale(side,1,1);wing=new THREE.Mesh(geo,armorMat);wing.position.set(side*.25,-.055,.02);}
   wing.name='wing-'+side;g.add(wing);
   const span=isHeavy?2.65:isStealth?2.72:2.2;
-  const wingPanel=addPanel('wing-armor-'+side,span,.12,isHeavy?.72:.48,side*(isHeavy?1.48:1.13),.115,.72,edgeMat);
+  const wingPanel=addPanel('wing-armor-'+side,span,.12,isHeavy ? .72:.48,side*(isHeavy?1.48:1.13),.115,.72,edgeMat);
   wingPanel.rotation.y=side*(isStealth?-.16:.08);
   const wingStripe=addBox('wing-stripe-'+side,.12,.035,isHeavy?1.62:1.35,side*(isHeavy?2.12:1.68),.19,.55,accentMat);
   wingStripe.rotation.y=side*(isStealth?-.13:.06);
   // Recessed panel seams and small service hatches.
   for(let k=0;k<3;k++){const seam=addBox('wing-seam-'+side+'-'+k,.035,.025,.62,side*(.72+k*.48),.19,.48-k*.16,darkMat);seam.rotation.y=side*-.12;}
   addBox('wing-hatch-'+side,.34,.055,.42,side*(isHeavy?1.52:1.18),.205,1.05,edgeMat);
-  const tip=addBox('tip-'+side,isHeavy?.3:.14,.18,isStealth?1.05:.72,side*(isHeavy?2.78:isStealth?2.62:2.12),.04,.68,accentMat);
+  const tip=addBox('tip-'+side,isHeavy ? .3:.14,.18,isStealth?1.05:.72,side*(isHeavy?2.78:isStealth?2.62:2.12),.04,.68,accentMat);
   tip.rotation.y=side*(isStealth?-.25:.04);
   // Twin engine nacelles retain the original names used by damage break-off logic.
-  const engine=new THREE.Mesh(new THREE.CylinderGeometry(isHeavy?.37:isStealth?.25:.19,isHeavy?.43:isStealth?.31:.24,isHeavy?1.05:.82,14),edgeMat);
-  engine.name='engine-'+side;engine.rotation.x=Math.PI/2;engine.position.set(side*(isHeavy?.78:isStealth?.52:.43),-.02,isHeavy?1.82:1.58);g.add(engine);
-  const nozzle=new THREE.Mesh(new THREE.CylinderGeometry(isHeavy?.27:.17,isHeavy?.32:.21,.16,14),darkMat);nozzle.name='engine-nozzle-'+side;nozzle.rotation.x=Math.PI/2;nozzle.position.set(engine.position.x,-.02,engine.position.z+.47);g.add(nozzle);
-  const exhaust=new THREE.Mesh(new THREE.ConeGeometry(isHeavy?.24:.14,.95,12),glowMat);exhaust.name='engine-glow-'+side;exhaust.rotation.x=Math.PI/2;exhaust.position.set(engine.position.x,-.02,engine.position.z+.95);g.add(exhaust);
-  addBox('engine-cowl-'+side,isHeavy?.95:.58,.26,.92,engine.position.x,.27,engine.position.z-.08,armorMat);
+  const engine=new THREE.Mesh(new THREE.CylinderGeometry(isHeavy ? .37:isStealth ? .25:.19,isHeavy ? .43:isStealth ? .31:.24,isHeavy?1.05:.82,14),edgeMat);
+  engine.name='engine-'+side;engine.rotation.x=Math.PI/2;engine.position.set(side*(isHeavy ? .78:isStealth ? .52:.43),-.02,isHeavy?1.82:1.58);g.add(engine);
+  const nozzle=new THREE.Mesh(new THREE.CylinderGeometry(isHeavy ? .27:.17,isHeavy ? .32:.21,.16,14),darkMat);nozzle.name='engine-nozzle-'+side;nozzle.rotation.x=Math.PI/2;nozzle.position.set(engine.position.x,-.02,engine.position.z+.47);g.add(nozzle);
+  const exhaust=new THREE.Mesh(new THREE.ConeGeometry(isHeavy ? .24:.14,.95,12),glowMat);exhaust.name='engine-glow-'+side;exhaust.rotation.x=Math.PI/2;exhaust.position.set(engine.position.x,-.02,engine.position.z+.95);g.add(exhaust);
+  addBox('engine-cowl-'+side,isHeavy ? .95:.58,.26,.92,engine.position.x,.27,engine.position.z-.08,armorMat);
   // Small attitude thrusters and side-mounted hardware.
   const thruster=new THREE.Mesh(new THREE.CylinderGeometry(.09,.13,.32,8),darkMat);thruster.name='maneuver-thruster-'+side;thruster.rotation.z=Math.PI/2;thruster.position.set(side*(isHeavy?2.12:1.62),.02,.18);g.add(thruster);
   if(isHeavy){const pod=addBox('armor-pod-'+side,.72,.62,1.58,side*1.78,-.02,.96,hullMat);pod.rotation.y=side*-.06;addBox('pod-plate-'+side,.76,.09,.92,side*1.78,.33,.92,edgeMat);}
@@ -170,11 +170,11 @@ function shipModel(color=0x42d9ff,design='interceptor'){
  }
  // Shared mechanical details: access panels, vents, antennae and recessed ports.
  for(const side of [-1,1]){
-  for(let k=0;k<3;k++)addBox('hull-vent-'+side+'-'+k,.18,.035,.12,side*(isHeavy?.55:.4),.57,.42+k*.23,darkMat);
+  for(let k=0;k<3;k++)addBox('hull-vent-'+side+'-'+k,.18,.035,.12,side*(isHeavy ? .55:.4),.57,.42+k*.23,darkMat);
   const port=new THREE.Mesh(new THREE.CylinderGeometry(.12,.12,.08,10),darkMat);port.name='weapon-port-'+side;port.rotation.x=Math.PI/2;port.position.set(side*(isHeavy?1.03:.72),.13,-.9);g.add(port);
  }
  addBox('rear-service-panel',isHeavy?1.35:.82,.055,.48,0,.57,1.12,edgeMat);
- const antenna=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,.48,6),edgeMat);antenna.name='antenna';antenna.position.set(isStealth?.58:0,.78,.95);g.add(antenna);
+ const antenna=new THREE.Mesh(new THREE.CylinderGeometry(.025,.04,.48,6),edgeMat);antenna.name='antenna';antenna.position.set(isStealth ? .58:0,.78,.95);g.add(antenna);
  return g;
 }
 function tintShip(group,color){if(!group)return;group.traverse(part=>{if(!part.isMesh||part.name!=='hull')return;const materials=Array.isArray(part.material)?part.material:[part.material];for(const material of materials){if(material&&material.color){material.color.setHex(color);if(material.emissive)material.emissive.setHex(color);}}});}
