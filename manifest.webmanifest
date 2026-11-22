@@ -1,0 +1,16 @@
+{
+  "name": "STARFALL",
+  "short_name": "STARFALL",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#030713",
+  "theme_color": "#06152f",
+  "icons": [
+    {
+      "src": "/icon.svg",
+      "sizes": "any",
+      "type": "image/svg+xml",
+      "purpose": "any"
+    }
+  ]
+}
