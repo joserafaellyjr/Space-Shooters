@@ -98,8 +98,7 @@ function makeWall(w,h,x,y,z,rotationY=0,rotationX=0){
  pattern.wrapS=pattern.wrapT=THREE.RepeatWrapping;pattern.repeat.set(w/18,h/18);pattern.needsUpdate=true;
  const panel=new THREE.Mesh(panelGeometry,wallMat.clone());
  panel.position.set(x,y,z);panel.rotation.set(rotationX,rotationY,0);arena.add(panel);
- const laserGrid=new THREE.Mesh(panelGeometry,new THREE.MeshBasicMaterial({map:pattern,transparent:true,opacity:.38,side:THREE.DoubleSide,depthWrite:false,blending:THREE.NormalBlending}));
- laserGrid.position.copy(panel.position);laserGrid.rotation.copy(panel.rotation);laserGrid.renderOrder=2;arena.add(laserGrid);
+ pattern.dispose();
  const frame=new THREE.LineSegments(new THREE.EdgesGeometry(panelGeometry),new THREE.LineBasicMaterial({color:0x43bfff,transparent:true,opacity:.62}));
  frame.position.set(x,y,z);frame.rotation.set(rotationX,rotationY,0);arena.add(frame);
 }
